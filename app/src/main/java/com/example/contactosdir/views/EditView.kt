@@ -10,10 +10,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -105,33 +111,48 @@ fun ContentEditView(
             value = nombre,
             onValueChange = { nombre = it },
             label = { Text("Nombre") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Person, contentDescription = "Nombre")
+            }
         )
         OutlinedTextField(
             value = apellidoPaterno,
             onValueChange = { apellidoPaterno = it },
             label = { Text("Apellido Paterno") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.AccountBox, contentDescription = "ApellidoPaterno")
+            }
         )
         OutlinedTextField(
             value = apellidoMaterno,
             onValueChange = { apellidoMaterno = it },
             label = { Text("Apellido Materno") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Face, contentDescription = "Apellido Materno")
+            },
         )
         OutlinedTextField(
             value = correo,
             onValueChange = { correo = it },
             label = { Text("Correo electrónico") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Email, contentDescription = "Correo")
+            },
         )
         OutlinedTextField(
             value = telefono,
             onValueChange = { telefono = it },
             label = { Text("Teléfono") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Phone, contentDescription = "Teléfono")
+            },
         )
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -150,7 +171,6 @@ fun ContentEditView(
                     contactoVM.updateContacto(contactoEditado)
                     navController.popBackStack()
                 } else {
-                    // Feedback al usuario si quieres
                 }
             },
             modifier = Modifier.fillMaxWidth()
