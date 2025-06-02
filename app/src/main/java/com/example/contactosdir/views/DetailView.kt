@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -24,7 +25,6 @@ import com.example.contactosdir.components.MainTitle
 import com.example.contactosdir.model.Contacto
 import com.example.contactosdir.viewModels.ContactosViewModel
 import com.example.contactosdir.viewModels.ContactoViewModel
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailView(
@@ -54,24 +54,40 @@ fun DetailView(
                     containerColor = MaterialTheme.colorScheme.primary
                 )
             )
-        }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(24.dp),
-            contentAlignment = Alignment.Center
-        ) {
-            if (contacto == null) {
-                Text("Cargando...")
-            } else {
-                contacto?.let { c ->
-                    DetailContent(c, context, navController)
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = {
+                    // Navegar a pantalla de edición (si tienes ruta)
+                    navController.navigate("EditView/${contacto?.id ?: 0}")
+                },
+                containerColor = MaterialTheme.colorScheme.secondary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = "Editar Contacto",
+                    tint = MaterialTheme.colorScheme.onSecondary
+                )
+            }
+        },
+        content = { padding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                if (contacto == null) {
+                    Text("Cargando...", style = MaterialTheme.typography.bodyLarge)
+                } else {
+                    contacto?.let { c ->
+                        DetailContent(c, context, navController)
+                    }
                 }
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -80,53 +96,72 @@ fun DetailContent(
     context: Context,
     navController: NavController
 ) {
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
     ) {
-        // Foto o ícono
-        Icon(
-            imageVector = Icons.Default.AccountCircle,
-            contentDescription = "Foto de perfil",
-            modifier = Modifier.size(100.dp),
-            tint = MaterialTheme.colorScheme.primary
-        )
-
-        // Nombre completo
-        Text(
-            text = "${contacto.nombre} ${contacto.apellidoPaterno} ${contacto.apellidoMaterno}",
-            fontSize = 22.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground
-        )
-
-        // Botones de acción
-        Row(
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            ActionButton("Llamar", Icons.Default.Call) {
-                val intent = Intent(Intent.ACTION_DIAL).apply {
-                    data = Uri.parse("tel:${contacto.telefono}")
-                }
-                context.startActivity(intent)
-            }
-            ActionButton("Correo", Icons.Default.Email) {
-                val intent = Intent(Intent.ACTION_SENDTO).apply {
-                    data = Uri.parse("mailto:${contacto.correo}")
-                }
-                context.startActivity(intent)
-            }
-        }
-
-        // Información detallada
         Column(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            InfoRow(Icons.Default.Phone, contacto.telefono)
-            InfoRow(Icons.Default.Email, contacto.correo)
+            // Foto o ícono con círculo y sombra
+            Icon(
+                imageVector = Icons.Default.AccountCircle,
+                contentDescription = "Foto de perfil",
+                modifier = Modifier
+                    .size(120.dp)
+                    .padding(8.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            // Nombre completo
+            Text(
+                text = "${contacto.nombre} ${contacto.apellidoPaterno} ${contacto.apellidoMaterno}",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+
+            )
+
+            Divider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
+
+            // Botones de acción en fila centrada y con separación
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterHorizontally),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                ActionButton("Llamar", Icons.Default.Call) {
+                    val intent = Intent(Intent.ACTION_DIAL).apply {
+                        data = Uri.parse("tel:${contacto.telefono}")
+                    }
+                    context.startActivity(intent)
+                }
+                ActionButton("Correo", Icons.Default.Email) {
+                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("mailto:${contacto.correo}")
+                    }
+                    context.startActivity(intent)
+                }
+            }
+
+            Divider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
+
+            // Información detallada con títulos y separadores
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                InfoSection("Teléfono", Icons.Default.Phone, contacto.telefono)
+                InfoSection("Correo electrónico", Icons.Default.Email, contacto.correo)
+            }
         }
     }
 }
@@ -135,28 +170,46 @@ fun DetailContent(
 fun ActionButton(label: String, icon: ImageVector, onClick: () -> Unit) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         IconButton(onClick = onClick) {
-            Icon(imageVector = icon, contentDescription = label)
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(32.dp)
+            )
         }
-        Text(text = label, fontSize = 12.sp)
+        Text(
+            text = label,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Medium
+        )
     }
 }
 
 @Composable
-fun InfoRow(icon: ImageVector, info: String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(end = 8.dp)
-        )
+fun InfoSection(title: String, icon: ImageVector, info: String) {
+    Column {
         Text(
-            text = info,
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onBackground
+            text = title,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.SemiBold
         )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(end = 12.dp)
+            )
+            Text(
+                text = info,
+                fontSize = 18.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }
