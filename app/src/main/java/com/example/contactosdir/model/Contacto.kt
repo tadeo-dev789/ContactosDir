@@ -11,5 +11,6 @@ data class Contacto(
     val apellidoPaterno: String,
     val apellidoMaterno: String,
     val correo: String,
-    val telefono: String
-)
+    val telefono: String,
+    val domicilio: String = "",
+    )

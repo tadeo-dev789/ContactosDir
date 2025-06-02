@@ -1,5 +1,7 @@
 package com.example.contactosdir.components
 
+import android.content.Intent
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -23,22 +25,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.contactosdir.model.Contacto // Asegúrate de que la ruta sea correcta
+import android.net.Uri
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.ui.Alignment
+
 
 @Composable
 fun ContactoCard(
     contacto: Contacto,
     onEditClick: (Contacto) -> Unit,
     onDeleteClick: (Contacto) -> Unit,
+    onShowClick: (Contacto) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current // para lanzar el intent
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -67,7 +75,11 @@ fun ContactoCard(
                     text = "${contacto.nombre} ${contacto.apellidoPaterno} ${contacto.apellidoMaterno}",
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier.clickable{
+                        onShowClick(contacto)
+                    }
+
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
@@ -85,12 +97,19 @@ fun ContactoCard(
                     )
                 }
                 Spacer(modifier = Modifier.height(2.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.clickable{
+                        val intent = Intent(Intent.ACTION_SENDTO).apply {
+                            data = Uri.parse("mailto:${contacto.correo}")
+                        }
+                        context.startActivity(intent)
+                    }) {
                     Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = "Correo Electrónico",
                         modifier = Modifier.size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
@@ -102,7 +121,11 @@ fun ContactoCard(
             }
 
             // Botones de Acción
-            Column {
+            Column (
+                verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ){
+
                 IconButton(onClick = { onEditClick(contacto) }) {
                     Icon(
                         imageVector = Icons.Default.Edit,
@@ -138,7 +161,8 @@ fun ContactoCardPreview() {
         ContactoCard(
             contacto = sampleContacto,
             onEditClick = { /* Acción para editar en preview */ },
-            onDeleteClick = { /* Acción para eliminar en preview */ }
+            onDeleteClick = { /* Acción para eliminar en preview */ },
+            onShowClick={ /* Acción para eliminar en preview */ }
         )
     }
 }

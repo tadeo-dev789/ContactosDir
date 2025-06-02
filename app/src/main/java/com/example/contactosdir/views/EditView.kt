@@ -1,5 +1,7 @@
 package com.example.contactosdir.views
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
@@ -33,6 +36,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -53,7 +57,6 @@ fun EditView(
     val contacto by contactosVM.selectedContacto.collectAsState()
 
     LaunchedEffect(id) {
-        println("ID recibido para editar: $id")
         contactosVM.selectContactoById(id)
     }
 
@@ -71,8 +74,7 @@ fun EditView(
                 }
             )
         }
-    ) {
-        val paddingValues = it
+    ) { paddingValues ->
         contacto?.let { c ->
             ContentEditView(paddingValues, navController, contactoVM, contactosVM, c)
         } ?: run {
@@ -99,6 +101,10 @@ fun ContentEditView(
     var apellidoMaterno by remember { mutableStateOf(contacto.apellidoMaterno) }
     var correo by remember { mutableStateOf(contacto.correo) }
     var telefono by remember { mutableStateOf(contacto.telefono) }
+    var domicilio by remember { mutableStateOf(contacto.domicilio) }
+
+
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -111,49 +117,59 @@ fun ContentEditView(
             value = nombre,
             onValueChange = { nombre = it },
             label = { Text("Nombre") },
-            modifier = Modifier.fillMaxWidth(),
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Person, contentDescription = "Nombre")
-            }
+            },
+            modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
             value = apellidoPaterno,
             onValueChange = { apellidoPaterno = it },
             label = { Text("Apellido Paterno") },
-            modifier = Modifier.fillMaxWidth(),
             leadingIcon = {
-                Icon(imageVector = Icons.Default.AccountBox, contentDescription = "ApellidoPaterno")
-            }
+                Icon(imageVector = Icons.Default.AccountBox, contentDescription = "Apellido Paterno")
+            },
+            modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
             value = apellidoMaterno,
             onValueChange = { apellidoMaterno = it },
             label = { Text("Apellido Materno") },
-            modifier = Modifier.fillMaxWidth(),
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Face, contentDescription = "Apellido Materno")
             },
+            modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
             value = correo,
             onValueChange = { correo = it },
             label = { Text("Correo electrónico") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-            modifier = Modifier.fillMaxWidth(),
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Email, contentDescription = "Correo")
             },
+            modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
             value = telefono,
             onValueChange = { telefono = it },
             label = { Text("Teléfono") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-            modifier = Modifier.fillMaxWidth(),
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Phone, contentDescription = "Teléfono")
             },
+            modifier = Modifier.fillMaxWidth()
         )
+        OutlinedTextField(
+            value = domicilio,
+            onValueChange = { domicilio = it },
+            label = { Text("Domicilio") },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Home, contentDescription = "Domicilio")
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
+
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -166,11 +182,14 @@ fun ContentEditView(
                         apellidoPaterno = apellidoPaterno.trim(),
                         apellidoMaterno = apellidoMaterno.trim(),
                         correo = correo.trim(),
-                        telefono = telefono.trim()
+                        telefono = telefono.trim(),
+                        domicilio = domicilio.trim(),
+
                     )
                     contactoVM.updateContacto(contactoEditado)
                     navController.popBackStack()
                 } else {
+                    // Puedes agregar aquí manejo de error si quieres
                 }
             },
             modifier = Modifier.fillMaxWidth()
