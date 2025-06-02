@@ -80,6 +80,10 @@ dependencies {
     //-- Lottie
     implementation ("com.airbnb.android:lottie-compose:5.2.0")
 
+    //-- Coil
+    implementation("io.coil-kt:coil-compose:2.5.0") // o la última versión
+
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

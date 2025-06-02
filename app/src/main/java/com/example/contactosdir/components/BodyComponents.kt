@@ -34,8 +34,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.contactosdir.model.Contacto // Asegúrate de que la ruta sea correcta
 import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 
 
 @Composable
@@ -59,13 +66,30 @@ fun ContactoCard(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icono de Contacto (Puedes reemplazarlo con una imagen si la tienes)
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = "Icono de Contacto",
-                modifier = Modifier.size(50.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            // Imagen o ícono de contacto
+            if (!contacto.fotoUri.isNullOrEmpty()) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(context)
+                            .data(Uri.parse(contacto.fotoUri))
+                            .crossfade(true)
+                            .build()
+                    ),
+                    contentDescription = "Foto de Contacto",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Icono de Contacto",
+                    modifier = Modifier.size(50.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
