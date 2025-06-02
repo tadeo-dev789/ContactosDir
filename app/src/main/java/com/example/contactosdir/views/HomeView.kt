@@ -122,6 +122,9 @@ fun ContentHomeView(
                             },
                             onDeleteClick = {
                                 contactosVM.deleteContacto(contacto)
+                            },
+                            onShowClick = {
+                                navController.navigate("DetailView/${contacto.id}")
                             }
                         )
                     }

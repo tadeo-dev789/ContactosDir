@@ -15,6 +15,7 @@ import com.example.contactosdir.views.EditView
 import com.example.contactosdir.views.HomeView
 import com.example.contactosdir.dataStore.StoreBoarding
 import com.example.contactosdir.onBoardViews.MainOnBoarding
+import com.example.contactosdir.views.DetailView
 import com.example.contactosdir.views.SplashScreen
 
 @Composable
@@ -41,6 +42,13 @@ fun NavManager(contactoVM: ContactosViewModel, contactosVM: ContactoViewModel){
         })) {
             val id = it.arguments?.getInt("id") ?: 0
             EditView(navController, contactoVM, contactosVM, id)
+        }
+
+        composable("DetailView/{id}", arguments = listOf(navArgument("id") {
+            type = NavType.IntType
+        })) {
+            val id = it.arguments?.getInt("id") ?: 0
+            DetailView(navController, contactoVM, contactosVM, id)
         }
 
         composable("Splash"){
