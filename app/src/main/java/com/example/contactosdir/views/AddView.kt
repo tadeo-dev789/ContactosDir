@@ -1,5 +1,7 @@
 package com.example.contactosdir.views
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.filled.AccountBox
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Face
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.Button
@@ -31,6 +34,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -42,11 +46,15 @@ import com.example.contactosdir.viewModels.ContactoViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddView(navController: NavController, contactoVM: ContactosViewModel, contactosVM: ContactoViewModel){
+fun AddView(
+    navController: NavController,
+    contactoVM: ContactosViewModel,
+    contactosVM: ContactoViewModel
+) {
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { MainTitle(title = "Add Contacto") },
+                title = { MainTitle(title = "Agregar Contacto") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
@@ -58,9 +66,8 @@ fun AddView(navController: NavController, contactoVM: ContactosViewModel, contac
             )
         }
     ) {
-        ContentAddView(it, navController,contactoVM,contactosVM)
+        ContentAddView(it, navController, contactoVM, contactosVM)
     }
-
 }
 
 @Composable
@@ -75,6 +82,9 @@ fun ContentAddView(
     var apellidoMaterno by remember { mutableStateOf("") }
     var correo by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
+    var domicilio by remember { mutableStateOf("") }
+
+    val context = LocalContext.current
 
     Column(
         modifier = Modifier
@@ -97,10 +107,7 @@ fun ContentAddView(
             onValueChange = { apellidoPaterno = it },
             label = { Text("Apellido Paterno") },
             leadingIcon = {
-                Icon(
-                    imageVector = Icons.Default.AccountBox,
-                    contentDescription = "Apellido Paterno"
-                )
+                Icon(imageVector = Icons.Default.AccountBox, contentDescription = "Apellido Paterno")
             },
             modifier = Modifier.fillMaxWidth()
         )
@@ -133,24 +140,32 @@ fun ContentAddView(
             },
             modifier = Modifier.fillMaxWidth()
         )
-
-
+        OutlinedTextField(
+            value = domicilio,
+            onValueChange = { domicilio = it },
+            label = { Text("Domicilio") },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.Home, contentDescription = "Domicilio")
+            },
+            modifier = Modifier.fillMaxWidth()
+        )
         Spacer(modifier = Modifier.height(24.dp))
 
         Button(
             onClick = {
-                // Validar que nombre y teléfono no estén vacíos
                 if (nombre.isNotBlank() && apellidoPaterno.isNotBlank() && telefono.isNotBlank()) {
                     val nuevoContacto = Contacto(
                         nombre = nombre.trim(),
                         apellidoPaterno = apellidoPaterno.trim(),
                         apellidoMaterno = apellidoMaterno.trim(),
                         correo = correo.trim(),
-                        telefono = telefono.trim()
+                        telefono = telefono.trim(),
+                        domicilio = domicilio.trim(),
                     )
                     contactoVM.addContacto(nuevoContacto)
                     navController.popBackStack()
                 } else {
+                    // Aquí puedes mostrar un mensaje de error si quieres
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -159,6 +174,3 @@ fun ContentAddView(
         }
     }
 }
-
-
-

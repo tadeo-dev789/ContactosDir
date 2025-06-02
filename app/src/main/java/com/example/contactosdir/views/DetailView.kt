@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -25,6 +26,7 @@ import com.example.contactosdir.components.MainTitle
 import com.example.contactosdir.model.Contacto
 import com.example.contactosdir.viewModels.ContactosViewModel
 import com.example.contactosdir.viewModels.ContactoViewModel
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailView(
@@ -58,7 +60,6 @@ fun DetailView(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = {
-                    // Navegar a pantalla de edición (si tienes ruta)
                     navController.navigate("EditView/${contacto?.id ?: 0}")
                 },
                 containerColor = MaterialTheme.colorScheme.secondary
@@ -111,7 +112,6 @@ fun DetailContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Foto o ícono con círculo y sombra
             Icon(
                 imageVector = Icons.Default.AccountCircle,
                 contentDescription = "Foto de perfil",
@@ -121,20 +121,19 @@ fun DetailContent(
                 tint = MaterialTheme.colorScheme.primary
             )
 
-            // Nombre completo
             Text(
                 text = "${contacto.nombre} ${contacto.apellidoPaterno} ${contacto.apellidoMaterno}",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-
+                modifier = Modifier.fillMaxWidth(),      // <-- Aquí
+                textAlign = TextAlign.Center             // <-- Y aquí
             )
 
             Divider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
 
-            // Botones de acción en fila centrada y con separación
             Row(
-                horizontalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(15.dp, Alignment.CenterHorizontally),
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -144,23 +143,48 @@ fun DetailContent(
                     }
                     context.startActivity(intent)
                 }
+                ActionButton("Mensaje", Icons.Default.Send) {
+                    val intent = Intent(Intent.ACTION_SENDTO).apply {
+                        data = Uri.parse("smsto:${contacto.telefono}")
+                    }
+                    context.startActivity(intent)
+                }
                 ActionButton("Correo", Icons.Default.Email) {
                     val intent = Intent(Intent.ACTION_SENDTO).apply {
                         data = Uri.parse("mailto:${contacto.correo}")
                     }
                     context.startActivity(intent)
                 }
+                ActionButton("Ubicación", Icons.Default.LocationOn) {
+                    val domicilio = contacto.domicilio ?: ""
+                    if (domicilio.isNotBlank()) {
+                        val domicilioEncoded = Uri.encode(domicilio)
+                        // Usamos el link web con api=1 para buscar dirección
+                        val uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$domicilioEncoded")
+                        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+                            setPackage("com.google.android.apps.maps")
+                        }
+                        if (intent.resolveActivity(context.packageManager) != null) {
+                            context.startActivity(intent)
+                        } else {
+                            // fallback si no tiene Google Maps
+                            val fallbackIntent = Intent(Intent.ACTION_VIEW, uri)
+                            context.startActivity(fallbackIntent)
+                        }
+                    }
+                }
+
             }
 
             Divider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
 
-            // Información detallada con títulos y separadores
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 InfoSection("Teléfono", Icons.Default.Phone, contacto.telefono)
                 InfoSection("Correo electrónico", Icons.Default.Email, contacto.correo)
+                InfoSection("Domicilio", Icons.Default.Home, contacto.domicilio ?: "No especificado")
             }
         }
     }
