@@ -121,13 +121,7 @@ fun ContactoCard(
                     )
                 }
                 Spacer(modifier = Modifier.height(2.dp))
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable{
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:${contacto.correo}")
-                        }
-                        context.startActivity(intent)
-                    }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = "Correo Electrónico",

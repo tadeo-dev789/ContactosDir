@@ -10,29 +10,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.AccountBox
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Email
-import androidx.compose.material.icons.filled.Face
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Phone
-import androidx.compose.material3.Button
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -40,15 +23,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest // Importar ImageRequest
+import com.example.contactosdir.R
 import com.example.contactosdir.components.MainIconButton
 import com.example.contactosdir.components.MainTitle
 import com.example.contactosdir.model.Contacto
 import com.example.contactosdir.viewModels.ContactosViewModel
 import com.example.contactosdir.viewModels.ContactoViewModel
-import com.example.contactosdir.R
 import java.io.File
 import java.io.FileOutputStream
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,16 +64,17 @@ fun EditView(
     ) { paddingValues ->
         contacto?.let { c ->
             ContentEditView(paddingValues, navController, contactoVM, contactosVM, c)
-        } ?: run {
-            Text(
-                "Cargando...",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            )
+        } ?: Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Cargando...")
         }
     }
 }
+
 @Composable
 fun ContentEditView(
     paddingValues: PaddingValues,
@@ -107,12 +91,23 @@ fun ContentEditView(
     var correo by remember { mutableStateOf(contacto.correo) }
     var telefono by remember { mutableStateOf(contacto.telefono) }
     var domicilio by remember { mutableStateOf(contacto.domicilio) }
+
+    // Usamos remember para mantener el estado de la URI de la imagen seleccionada.
+    // Inicialmente, será la URI guardada en el contacto.
     var imageUri by remember { mutableStateOf(contacto.fotoUri?.let { Uri.parse(it) }) }
+
+    // Un LaunchedEffect para actualizar imageUri si el contacto cambia (ej. al recargar la vista)
+    LaunchedEffect(contacto.fotoUri) {
+        imageUri = contacto.fotoUri?.let { Uri.parse(it) }
+    }
+
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
     ) { uri: Uri? ->
-        imageUri = uri
+        if (uri != null) {
+            imageUri = uri // Actualiza el estado con la nueva URI seleccionada
+        }
     }
 
     Column(
@@ -120,38 +115,12 @@ fun ContentEditView(
             .fillMaxSize()
             .padding(paddingValues)
             .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Imagen de perfil
-        Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Image(
-                painter = if (imageUri != null)
-                    rememberAsyncImagePainter(imageUri)
-                else
-                    painterResource(id = R.drawable.usuario), // imagen por defecto
-                contentDescription = "Foto de perfil",
-                modifier = Modifier.run {
-                    size(120.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.surface)
-                }
-            )
-            IconButton(
-                onClick = { launcher.launch("image/*") },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(32.dp)
-                    .background(MaterialTheme.colorScheme.primary, CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.AccountBox,
-                    contentDescription = "Editar imagen",
-                    tint = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-        }
+        // Pasamos imageUri al composable ProfileImage
+        ProfileImage(imageUri = imageUri, onClick = { launcher.launch("image/*") })
 
-        // Campos de texto
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
@@ -202,13 +171,13 @@ fun ContentEditView(
         Button(
             onClick = {
                 if (nombre.isNotBlank() && apellidoPaterno.isNotBlank() && telefono.isNotBlank()) {
-                    val rutaLocal = when {
-                        imageUri == null -> ""
-                        imageUri!!.scheme == "content" -> guardarImagenEnInterno(context,
-                            imageUri!!
-                        )
-                        else -> imageUri.toString() // ya era una ruta local, no se vuelve a guardar
-                    }
+                    val rutaLocal = imageUri?.let {
+                        if (it.scheme == "content") {
+                            guardarImagenEnInterno(context, it)
+                        } else {
+                            it.toString()
+                        }
+                    } ?: ""
 
                     val contactoEditado = contacto.copy(
                         nombre = nombre.trim(),
@@ -221,13 +190,50 @@ fun ContentEditView(
                     )
                     contactoVM.updateContacto(contactoEditado)
                     navController.popBackStack()
-                } else {
-                    // puedes mostrar un mensaje de error si lo deseas
                 }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
             Text("Actualizar contacto")
+        }
+    }
+}
+
+@Composable
+fun ProfileImage(imageUri: Uri?, onClick: () -> Unit) {
+    val context = LocalContext.current // Obtenemos el contexto para ImageRequest.Builder
+
+    Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.BottomEnd) {
+        val painter = rememberAsyncImagePainter(
+            model = ImageRequest.Builder(context)
+                .data(imageUri) // Aquí es donde pasamos el URI
+                .crossfade(true) // Opcional: efecto de fade al cargar
+                .error(R.drawable.usuario) // Si Coil no puede cargar imageUri, muestra esta imagen
+                .placeholder(R.drawable.usuario) // Mientras carga, muestra esta imagen
+                .build()
+        )
+
+        Image(
+            painter = painter,
+            contentDescription = "Foto de perfil",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .size(120.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surface)
+        )
+
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .size(32.dp)
+                .background(MaterialTheme.colorScheme.primary, CircleShape)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Edit,
+                contentDescription = "Editar imagen",
+                tint = MaterialTheme.colorScheme.onPrimary
+            )
         }
     }
 }
@@ -244,4 +250,3 @@ fun guardarImagenEnInterno(context: Context, uri: Uri): String {
     }
     return file.absolutePath
 }
-

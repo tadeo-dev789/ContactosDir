@@ -20,14 +20,12 @@ import androidx.navigation.NavController
 import com.example.contactosdir.components.ContactoCard
 import com.example.contactosdir.components.FloatButton
 import com.example.contactosdir.components.MainTitle
-import com.example.contactosdir.model.Contacto
 import com.example.contactosdir.viewModels.ContactoViewModel
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
 
-// 🔽 Para animación Lottie (si decides usarla)
 import com.airbnb.lottie.compose.*
-import com.example.contactosdir.R // Asegúrate de tener los recursos correctos
+import com.example.contactosdir.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,7 +72,6 @@ fun ContentHomeView(
                     .padding(top = 80.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 🔽 OPCIÓN A: Lottie Animation
                 val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animtel))
                 LottieAnimation(
                     composition = composition,

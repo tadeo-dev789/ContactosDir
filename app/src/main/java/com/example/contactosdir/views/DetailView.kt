@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.example.contactosdir.R
 import com.example.contactosdir.components.MainIconButton
 import com.example.contactosdir.components.MainTitle
@@ -124,34 +125,34 @@ fun DetailContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            // Aquí debes reemplazar `getProfilePainter(contacto)` por tu forma de obtener la imagen si tienes
-            val painter: Painter? = if (imageUri != null)
-                rememberAsyncImagePainter(imageUri)
-            else
-                painterResource(id = R.drawable.usuario) // imagen por defecto
 
-            if (painter != null) {
+
+            // Imagen o ícono de contacto
+            if (!contacto.fotoUri.isNullOrEmpty()) {
                 Image(
-                    painter = painter,
-                    contentDescription = "Foto de perfil",
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(context)
+                            .data(Uri.parse(contacto.fotoUri))
+                            .crossfade(true)
+                            .build()
+                    ),
+                    contentDescription = "Foto de Contacto",
                     modifier = Modifier.
                             size(120.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface),
+                       .background(MaterialTheme.colorScheme.surface),
                     contentScale = ContentScale.Crop
                 )
             } else {
                 Icon(
                     imageVector = Icons.Default.AccountCircle,
-                    contentDescription = "Foto de perfil",
-                    modifier = Modifier
-                        .size(120.dp)
+                    contentDescription = "Icono de Contacto",
+                    modifier = Modifier.size(120.dp)
                         .clip(CircleShape)
                         .padding(8.dp),
                     tint = MaterialTheme.colorScheme.primary
                 )
             }
-
             Text(
                 text = "${contacto.nombre} ${contacto.apellidoPaterno} ${contacto.apellidoMaterno}",
                 fontSize = 26.sp,
