@@ -3,8 +3,10 @@ package com.example.contactosdir.views
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -12,15 +14,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
+import com.example.contactosdir.R
 import com.example.contactosdir.components.MainIconButton
 import com.example.contactosdir.components.MainTitle
 import com.example.contactosdir.model.Contacto
@@ -97,6 +109,7 @@ fun DetailContent(
     context: Context,
     navController: NavController
 ) {
+    var imageUri by remember { mutableStateOf(contacto.fotoUri?.let { Uri.parse(it) }) }
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -112,22 +125,41 @@ fun DetailContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = "Foto de perfil",
-                modifier = Modifier
-                    .size(120.dp)
-                    .padding(8.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
 
+
+            // Imagen o ícono de contacto
+            if (!contacto.fotoUri.isNullOrEmpty()) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(context)
+                            .data(Uri.parse(contacto.fotoUri))
+                            .crossfade(true)
+                            .build()
+                    ),
+                    contentDescription = "Foto de Contacto",
+                    modifier = Modifier.
+                            size(120.dp)
+                        .clip(CircleShape)
+                       .background(MaterialTheme.colorScheme.surface),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Icono de Contacto",
+                    modifier = Modifier.size(120.dp)
+                        .clip(CircleShape)
+                        .padding(8.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
             Text(
                 text = "${contacto.nombre} ${contacto.apellidoPaterno} ${contacto.apellidoMaterno}",
                 fontSize = 26.sp,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.fillMaxWidth(),      // <-- Aquí
-                textAlign = TextAlign.Center             // <-- Y aquí
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
             )
 
             Divider(color = MaterialTheme.colorScheme.outline, thickness = 1.dp)
@@ -159,7 +191,6 @@ fun DetailContent(
                     val domicilio = contacto.domicilio ?: ""
                     if (domicilio.isNotBlank()) {
                         val domicilioEncoded = Uri.encode(domicilio)
-                        // Usamos el link web con api=1 para buscar dirección
                         val uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$domicilioEncoded")
                         val intent = Intent(Intent.ACTION_VIEW, uri).apply {
                             setPackage("com.google.android.apps.maps")
@@ -167,7 +198,6 @@ fun DetailContent(
                         if (intent.resolveActivity(context.packageManager) != null) {
                             context.startActivity(intent)
                         } else {
-                            // fallback si no tiene Google Maps
                             val fallbackIntent = Intent(Intent.ACTION_VIEW, uri)
                             context.startActivity(fallbackIntent)
                         }

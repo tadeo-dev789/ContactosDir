@@ -1,6 +1,5 @@
 package com.example.contactosdir.views
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,20 +13,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.contactosdir.components.ContactoCard
 import com.example.contactosdir.components.FloatButton
 import com.example.contactosdir.components.MainTitle
-import com.example.contactosdir.model.Contacto
 import com.example.contactosdir.viewModels.ContactoViewModel
 import me.saket.swipe.SwipeAction
 import me.saket.swipe.SwipeableActionsBox
-
-// 🔽 Para animación Lottie (si decides usarla)
 import com.airbnb.lottie.compose.*
-import com.example.contactosdir.R // Asegúrate de tener los recursos correctos
+import com.example.contactosdir.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,12 +55,28 @@ fun ContentHomeView(
     navController: NavController,
     contactosVM: ContactoViewModel
 ) {
+    var searchText by remember { mutableStateOf("") }
+    val allContactos by contactosVM.contactosList.collectAsState()
+    val contactosList = allContactos.filter {
+        it.nombre.contains(searchText, ignoreCase = true) ||
+                it.apellidoPaterno.contains(searchText, ignoreCase = true) ||
+                it.telefono.contains(searchText)
+    }
+
     Column(
         modifier = Modifier
             .padding(paddingValues)
             .fillMaxSize()
     ) {
-        val contactosList by contactosVM.contactosList.collectAsState()
+        OutlinedTextField(
+            value = searchText,
+            onValueChange = { searchText = it },
+            label = { Text("Buscar contacto") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            singleLine = true
+        )
 
         if (contactosList.isEmpty()) {
             Column(
@@ -74,7 +85,6 @@ fun ContentHomeView(
                     .padding(top = 80.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // 🔽 OPCIÓN A: Lottie Animation
                 val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animtel))
                 LottieAnimation(
                     composition = composition,

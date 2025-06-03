@@ -16,7 +16,7 @@ fun SplashScreen(navController: NavController, store: Boolean?) {
     val destination = if (store == true) "Home" else "onBoarding"
 
     LaunchedEffect(Unit) {
-        delay(1500) // tiempo visible del splash (ajusta si quieres)
+        delay(1500) // tiempo visible del splash
         navController.navigate(destination) {
             popUpTo(0) // limpia el backstack para evitar volver al Splash
         }
@@ -27,7 +27,7 @@ fun SplashScreen(navController: NavController, store: Boolean?) {
         modifier = Modifier.fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.phone__1_), // reemplaza con tu imagen
+            painter = painterResource(id = R.drawable.phone__1_),
             contentDescription = "Splash Logo"
         )
     }

@@ -34,8 +34,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.contactosdir.model.Contacto // Asegúrate de que la ruta sea correcta
 import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 
 
 @Composable
@@ -59,13 +67,30 @@ fun ContactoCard(
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Icono de Contacto (Puedes reemplazarlo con una imagen si la tienes)
-            Icon(
-                imageVector = Icons.Default.AccountCircle,
-                contentDescription = "Icono de Contacto",
-                modifier = Modifier.size(50.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
+            // Imagen o ícono de contacto
+            if (!contacto.fotoUri.isNullOrEmpty()) {
+                Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(context)
+                            .data(Uri.parse(contacto.fotoUri))
+                            .crossfade(true)
+                            .build()
+                    ),
+                    contentDescription = "Foto de Contacto",
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface),
+                    contentScale = ContentScale.Crop
+                )
+            } else {
+                Icon(
+                    imageVector = Icons.Default.AccountCircle,
+                    contentDescription = "Icono de Contacto",
+                    modifier = Modifier.size(50.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+            }
 
             Spacer(modifier = Modifier.width(16.dp))
 
@@ -97,13 +122,7 @@ fun ContactoCard(
                     )
                 }
                 Spacer(modifier = Modifier.height(2.dp))
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.clickable{
-                        val intent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:${contacto.correo}")
-                        }
-                        context.startActivity(intent)
-                    }) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.Email,
                         contentDescription = "Correo Electrónico",
@@ -115,7 +134,9 @@ fun ContactoCard(
                     Text(
                         text = contacto.correo,
                         fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }

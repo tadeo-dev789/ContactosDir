@@ -13,4 +13,5 @@ data class Contacto(
     val correo: String,
     val telefono: String,
     val domicilio: String = "",
+    val fotoUri: String? = null // URI en forma de String
     )
