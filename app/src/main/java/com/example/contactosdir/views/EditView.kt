@@ -85,16 +85,16 @@ fun ContentEditView(
 ) {
     val context = LocalContext.current
 
-    var nombre by remember { mutableStateOf(contacto.nombre) }
-    var apellidoPaterno by remember { mutableStateOf(contacto.apellidoPaterno) }
-    var apellidoMaterno by remember { mutableStateOf(contacto.apellidoMaterno) }
-    var correo by remember { mutableStateOf(contacto.correo) }
-    var telefono by remember { mutableStateOf(contacto.telefono) }
-    var domicilio by remember { mutableStateOf(contacto.domicilio) }
+    var nombre by remember(contacto.id) { mutableStateOf(contacto.nombre) }
+    var apellidoPaterno by remember(contacto.id) { mutableStateOf(contacto.apellidoPaterno) }
+    var apellidoMaterno by remember(contacto.id) { mutableStateOf(contacto.apellidoMaterno) }
+    var correo by remember(contacto.id) { mutableStateOf(contacto.correo) }
+    var telefono by remember(contacto.id) { mutableStateOf(contacto.telefono) }
+    var domicilio by remember(contacto.id) { mutableStateOf(contacto.domicilio) }
 
-    // Usamos remember para mantener el estado de la URI de la imagen seleccionada.
-    // Inicialmente, será la URI guardada en el contacto.
-    var imageUri by remember { mutableStateOf(contacto.fotoUri?.let { Uri.parse(it) }) }
+    var imageUri by remember(contacto.id) {
+        mutableStateOf(contacto.fotoUri?.let { Uri.parse(it) })
+    }
 
     // Un LaunchedEffect para actualizar imageUri si el contacto cambia (ej. al recargar la vista)
     LaunchedEffect(contacto.fotoUri) {
