@@ -183,7 +183,7 @@ fun ContentEditView(
                         nombre = nombre.trim(),
                         apellidoPaterno = apellidoPaterno.trim(),
                         apellidoMaterno = apellidoMaterno.trim(),
-                        correo = correo.trim(),
+                        correo = correo.trim().toLowerCase(),
                         telefono = telefono.trim(),
                         domicilio = domicilio.trim(),
                         fotoUri = rutaLocal
