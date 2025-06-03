@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -78,7 +79,7 @@ fun ContentHomeView(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             singleLine = true,
-            leadingIcon = { Icon(Icons.Default.AccountCircle, contentDescription = null) }
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) }
         )
 
         when {
