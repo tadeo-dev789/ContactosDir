@@ -14,17 +14,17 @@ Una aplicación de contactos desarrollada con **Jetpack Compose**, diseñada par
 
 ---
 
-### 📋 Lista de Contactos
+### 📋 Capturas de la aplicación
 
-![Lista de Contactos](screenshots/main_view.png)
+<p align="center">
+  <img src="screenshots/HomeView.jpg" alt="Lista de Contactos" width="20%" />
+  <img src="screenshots/AddView.jpg" alt="Añadir Contacto" width="20%" />
+</p>
 
-### ➕ Añadir Contacto
-
-![Añadir Contacto](screenshots/add_contact.png)
-
-### ✏️ Editar Contacto
-
-![Editar Contacto](screenshots/edit_contact.png)
+<p align="center">
+  <img src="screenshots/EditView.jpg" alt="Editar Contacto" width="20%" />
+  <img src="screenshots/DetailView.jpg" alt="Revisar Contacto" width="20%" />
+</p>
 
 ---
 
@@ -36,6 +36,7 @@ Una aplicación de contactos desarrollada con **Jetpack Compose**, diseñada par
 * [Coil](https://coil-kt.github.io/coil/) (para carga de imágenes)
 * Arquitectura [MVVM](https://developer.android.com/jetpack/guide)
 * Navegación con `NavController`
+* Room para base de datos
 
 ---
 
@@ -44,7 +45,7 @@ Una aplicación de contactos desarrollada con **Jetpack Compose**, diseñada par
 1. Clona el repositorio:
 
    ```bash
-   git clone https://github.com/tu_usuario/contactosdir.git
+   git clone https://github.com/tadeo-dev789/ContactosDir.git
    ```
 
 2. Ábrelo en **Android Studio**.
@@ -53,14 +54,6 @@ Una aplicación de contactos desarrollada con **Jetpack Compose**, diseñada par
 
 ---
 
-## ✅ Mejoras Futuras
-
-* ☁️ Sincronización en la nube (Firebase).
-* 🔔 Recordatorios de cumpleaños.
-* 🗃️ Grupos o etiquetas para contactos.
-* 🌐 Exportación a `.vcf`.
-
----
 
 ## 👤 Autor
 
