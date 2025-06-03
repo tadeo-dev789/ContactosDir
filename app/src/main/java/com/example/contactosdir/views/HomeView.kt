@@ -50,7 +50,6 @@ fun HomeView(
         ContentHomeView(paddingValues, navController, contactosVM)
     }
 }
-
 @Composable
 fun ContentHomeView(
     paddingValues: PaddingValues,
@@ -62,6 +61,7 @@ fun ContentHomeView(
     val contactosList = allContactos.filter {
         it.nombre.contains(searchText, ignoreCase = true) ||
                 it.apellidoPaterno.contains(searchText, ignoreCase = true) ||
+                it.apellidoMaterno.contains(searchText, ignoreCase = true) ||
                 it.telefono.contains(searchText)
     }
 
@@ -81,68 +81,76 @@ fun ContentHomeView(
             leadingIcon = { Icon(Icons.Default.AccountCircle, contentDescription = null) }
         )
 
-        if (contactosList.isEmpty()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(top = 80.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animtel))
-                LottieAnimation(
-                    composition = composition,
-                    iterations = LottieConstants.IterateForever,
+        when {
+            allContactos.isEmpty() && searchText.isBlank() -> {
+                // Mostrar animación solo si no hay contactos y no se está buscando
+                Column(
                     modifier = Modifier
-                        .height(200.dp)
-                        .padding(16.dp)
-                        .scale(3f)
-                )
+                        .fillMaxSize()
+                        .padding(top = 80.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.animtel))
+                    LottieAnimation(
+                        composition = composition,
+                        iterations = LottieConstants.IterateForever,
+                        modifier = Modifier
+                            .height(200.dp)
+                            .padding(16.dp)
+                            .scale(3f)
+                    )
 
-                Text(
-                    text = "Aún no tienes contactos guardados.\n¡Toca el botón + para agregar uno!",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Gray,
-                    modifier = Modifier.padding(top = 16.dp)
-                )
+                    Text(
+                        text = "Aún no tienes contactos guardados.\n¡Toca el botón + para agregar uno!",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                }
             }
-        } else {
-            LazyColumn {
-                items(
-                    items = contactosList,
-                    key = { it.id }
-                ) { contacto ->
-                    val deleteAction = SwipeAction(
-                        icon = rememberVectorPainter(Icons.Default.Delete),
-                        background = Color.Red,
-                        onSwipe = { contactosVM.deleteContacto(contacto) }
-                    )
 
-                    val editAction = SwipeAction(
-                        icon = rememberVectorPainter(Icons.Default.Edit),
-                        background = Color.Blue,
-                        onSwipe = { navController.navigate("EditView/${contacto.id}") }
-                    )
-
-                    SwipeableActionsBox(
-                        startActions = listOf(editAction),
-                        endActions = listOf(deleteAction),
-                        swipeThreshold = 150.dp
-                    ) {
-                        ContactoCard(
-                            contacto = contacto,
-                            onEditClick = {
-                                navController.navigate("EditView/${contacto.id}")
-                            },
-                            onDeleteClick = {
-                                contactosVM.deleteContacto(contacto)
-                            },
-                            onShowClick = {
-                                navController.navigate("DetailView/${contacto.id}")
-                            }
+            contactosList.isNotEmpty() -> {
+                LazyColumn {
+                    items(
+                        items = contactosList,
+                        key = { it.id }
+                    ) { contacto ->
+                        val deleteAction = SwipeAction(
+                            icon = rememberVectorPainter(Icons.Default.Delete),
+                            background = Color.Red,
+                            onSwipe = { contactosVM.deleteContacto(contacto) }
                         )
+
+                        val editAction = SwipeAction(
+                            icon = rememberVectorPainter(Icons.Default.Edit),
+                            background = Color.Blue,
+                            onSwipe = { navController.navigate("EditView/${contacto.id}") }
+                        )
+
+                        SwipeableActionsBox(
+                            startActions = listOf(editAction),
+                            endActions = listOf(deleteAction),
+                            swipeThreshold = 150.dp
+                        ) {
+                            ContactoCard(
+                                contacto = contacto,
+                                onEditClick = {
+                                    navController.navigate("EditView/${contacto.id}")
+                                },
+                                onDeleteClick = {
+                                    contactosVM.deleteContacto(contacto)
+                                },
+                                onShowClick = {
+                                    navController.navigate("DetailView/${contacto.id}")
+                                }
+                            )
+                        }
                     }
                 }
             }
+
+            // Si hay búsqueda y no hay resultados, no mostrar nada (pantalla vacía)
         }
     }
 }
+
